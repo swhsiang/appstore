@@ -1,0 +1,132 @@
+---
+type: container
+name: webserver-image-build-container
+description: build webserver image
+
+inputs:
+  parameters:
+    code:
+    version:
+    # Encoded username and password
+    docker_username:
+      default: "secrets.==$1$key=default$text$APoZAZH39205UAfd25LViA+ZEoWhwePcyF8N/GIDGUyloFLc1FwRsnrUujJk/Fn5Oa3aiOygWEvBMZKpeCTm9u/+uzRuuJiyrZmYpepV2aLdfSOWFCEx3cd1mAwz/ZfB8rqIVh9oTWTaNDhHSj7BnHRtsOV6wCBHitCiNVC/x7wX2emfw6RZomduPBPaSIUf2F2ZxlQJq5nT6087973kriWt9zauuVLXjAWqutZmC6PTMtFPprmji1jKHA/x7eamo++J7a3TgLBIEE/L4W8iczHhWUr23JxOhpph+gDu35XJRGof9vq+l8FY/dgSdmQWT7vh8Ocop8eoxfqpYajD8FhrTHUZIuXl0f5Aq+0GYsvw1ll1Ljkqv6yK6JUfHXIun59/+O3HEb5Vnwo+qiF2N/u8BD/0qZZ8u3Y6dfQI2F01hA===="
+    docker_password:
+      default: "secrets.==$1$key=default$text$AIjfpCX10lV302965ra81I91ohosLPL++NzAp+08NEW1bsaOBRv+2D7swMaccr5jPTmv6TzUKdNTetpSf2R519j/pDkQ87TeETI5Pa0z9uuwlBpmwklXpcCPzXm36GA+jEGOEu0yo3CbHM6GpOYaX4rIKeRjKFIVhWGdFvW7b39S+HJTje9j60lQQq5PX25AYirqTG49vK1HFjY/ZZuGV4sbAHQSrpNKvKUp6rtZHikK8ozBAmyZiLxbrxodw24Xf1CoY54Dx4axedvX3V6/pRQBMyLcAGTcMM815O0YNIJVdW6xhCf4F4hCGhY513Nur8tPTHzjUqMfBHDbt5SfhBUIX3pIvvRvANXpaqgtko7jybqPRnxeInYX/4yn+D27SNj4Lnmlq6EIrwNTDz0i+3NtTfbDOSpeNFQY5oi55eusmA===="
+
+  artifacts:
+  - from: "%%code%%"
+    path: "/src"
+
+container:
+  # Build a docker image and push it
+  # The docker:1.12 image already has the docker command installed
+  image: docker:1.12
+  command: "cd /src/webserver &&
+              docker login -u %%docker_username%% -p %%docker_password%% demox.applatix.io &&
+              docker build -f Dockerfile -t demox.applatix.io/demo/webserver-image:%%version%% . &&
+              docker push demox.applatix.io/demo/webserver-image:%%version%%"
+labels:
+    # Enable docker access in this container by specifying the size of graph storage needed and the amount of cpu and memory required for docker commands
+    "ax_ea_docker_enable": '{ "graph-storage-name": "webserver", "graph-storage-size": "10Gi", "cpu_cores":"0.5", "mem_mib":"800"}'
+
+---
+type: container
+name: webserver-image-container
+description: Run a node based web server.
+inputs:
+  parameters:
+    version:
+container:
+  image: "demox.applatix.io/demo/webserver-image:%%version%%"
+  command: "cd /usr/src/app && npm install && npm start"
+
+---
+type: deployment
+name: webserver-image-deployment
+inputs:
+  parameters:
+    appname:
+      default: "webserver"
+    domain:
+      default: " "
+    version:
+      default: "v1"
+
+application:
+  name: "%%appname%%"
+deployment:
+  name: "node"
+external_routes:
+  - name: "%%appname%%"
+    target_port: 80
+    ip_white_list:
+      - 0.0.0.0/0
+
+containers:
+  - webserver:
+      template: webserver-image-container
+
+---
+type: workflow
+name: webserver-image-build
+inputs:
+  parameters:
+    commit:
+      default: "%%session.commit%%"
+    repo:
+      default: "%%session.repo%%"
+    version:
+      default: "v1"
+
+steps:
+  - checkout:
+      template: axscm-checkout
+  - build:
+      template: webserver-image-build-container
+      parameters:
+        code: "%%steps.checkout.code%%"
+
+---
+type: workflow
+name: webserver-image-deploy
+inputs:
+  parameters:
+    version:
+      default: "v1"
+
+steps:
+  - deploy:
+      template: webserver-image-deployment
+
+---
+type: workflow
+name: webserver-image-build-approve-deploy
+inputs:
+  parameters:
+    commit:
+      default: "%%session.commit%%"
+    repo:
+      default: "%%session.repo%%"
+    version:
+      default: "v1"
+    required_approvals:
+      default: " "
+    optional_approvals:
+      default: " "
+    number_of_optional_approvals_needed:
+      default: 0
+    timeout_in_minutes:
+      default: 10 
+ 
+steps:
+  - checkout:
+      template: axscm-checkout
+  - build:
+      template: webserver-image-build-container
+      parameters:
+        code: "%%steps.checkout.code%%"
+  - approval:
+      template: axapproval
+  - deploy:
+      template: webserver-image-deployment
+

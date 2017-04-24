@@ -35,7 +35,7 @@ actions:
     template: webserver-image-deploy
     parameters:
       version: v2
-  -
+ -
     name: build and deploy v1 image
     template: webserver-image-build-approve-deploy
     parameters:
