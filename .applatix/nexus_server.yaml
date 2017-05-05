@@ -16,8 +16,7 @@ container:
     timeout_seconds: 10
 
 ---
-type: service_template
-subtype: deployment
+type: deployment
 name: nexus-repo-deployment
 description: This creates the nexus-repo deployment.
 inputs:
@@ -48,8 +47,7 @@ containers:
       template: nexus-repo-container
 
 ---
-type: service_template
-subtype: workflow
+type: workflow
 name: nexus-repo-run-workflow
 description: This is a workflow that deploys and runs Nexus Repository.
 inputs:
