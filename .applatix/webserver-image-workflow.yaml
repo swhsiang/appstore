@@ -9,9 +9,9 @@ inputs:
     version:
     # Encoded username and password
     docker_username:
-      default: "secrets.==$1$key=default$text$APoZAZH39205UAfd25LViA+ZEoWhwePcyF8N/GIDGUyloFLc1FwRsnrUujJk/Fn5Oa3aiOygWEvBMZKpeCTm9u/+uzRuuJiyrZmYpepV2aLdfSOWFCEx3cd1mAwz/ZfB8rqIVh9oTWTaNDhHSj7BnHRtsOV6wCBHitCiNVC/x7wX2emfw6RZomduPBPaSIUf2F2ZxlQJq5nT6087973kriWt9zauuVLXjAWqutZmC6PTMtFPprmji1jKHA/x7eamo++J7a3TgLBIEE/L4W8iczHhWUr23JxOhpph+gDu35XJRGof9vq+l8FY/dgSdmQWT7vh8Ocop8eoxfqpYajD8FhrTHUZIuXl0f5Aq+0GYsvw1ll1Ljkqv6yK6JUfHXIun59/+O3HEb5Vnwo+qiF2N/u8BD/0qZZ8u3Y6dfQI2F01hA===="
+      default: "%%secrets.xxxxxxxx%%"
     docker_password:
-      default: "secrets.==$1$key=default$text$AIjfpCX10lV302965ra81I91ohosLPL++NzAp+08NEW1bsaOBRv+2D7swMaccr5jPTmv6TzUKdNTetpSf2R519j/pDkQ87TeETI5Pa0z9uuwlBpmwklXpcCPzXm36GA+jEGOEu0yo3CbHM6GpOYaX4rIKeRjKFIVhWGdFvW7b39S+HJTje9j60lQQq5PX25AYirqTG49vK1HFjY/ZZuGV4sbAHQSrpNKvKUp6rtZHikK8ozBAmyZiLxbrxodw24Xf1CoY54Dx4axedvX3V6/pRQBMyLcAGTcMM815O0YNIJVdW6xhCf4F4hCGhY513Nur8tPTHzjUqMfBHDbt5SfhBUIX3pIvvRvANXpaqgtko7jybqPRnxeInYX/4yn+D27SNj4Lnmlq6EIrwNTDz0i+3NtTfbDOSpeNFQY5oi55eusmA===="
+      default: "%%secrets.xxxxxxxx%%"
 
   artifacts:
   - from: "%%code%%"
